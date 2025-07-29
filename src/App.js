@@ -3,6 +3,8 @@
 import './App.css';
 
 import React, { useState, useEffect } from 'react';
+import Tabs from './components/Tabs';
+import './components/Tabs.css';
 import { ethers } from 'ethers';
 import { Token, CurrencyAmount, TradeType, Route, Pool, Trade } from '@uniswap/v3-sdk';
 import { Token as UniToken, CurrencyAmount as UniCurrencyAmount, Percent, Ether, WETH9 } from '@uniswap/sdk-core';
@@ -108,6 +110,23 @@ const NETWORKS = [
 ];
 // Par défaut Sepolia
 function App() {
+  const [showIntro, setShowIntro] = useState(true);
+  useEffect(() => {
+    if (showIntro) {
+      // Explication vocale (Web Speech API)
+      const synth = window.speechSynthesis;
+      const utter = new window.SpeechSynthesisUtterance(
+        "Bienvenue sur DEX Swap App. Cette application a ete realiser par Euloge Mabiala et vous permet d'échanger des cryptomonnaies instantanément, sans intermédiaire, en toute sécurité, sur plusieurs réseaux. Connectez votre portefeuille pour commencer."
+      );
+      utter.lang = 'fr-FR';
+      utter.rate = 1;
+      synth.cancel();
+      synth.speak(utter);
+      return () => {
+        synth.cancel();
+      };
+    }
+  }, [showIntro]);
   const [networkIdx, setNetworkIdx] = useState(0);
   const network = NETWORKS[networkIdx];
   const TOKENS = network.tokens;
@@ -208,8 +227,42 @@ function App() {
     // eslint-disable-next-line
   }, [amount, fromToken, toToken]);
 
+  const [tab, setTab] = useState('swap');
+
   return (
     <div className="App">
+      {showIntro && (
+        <div className="intro-overlay" onClick={() => setShowIntro(false)}>
+          <div className="intro-card">
+            <div className="intro-logo">
+              <span className="crypto-coin">
+                <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <defs>
+                    <radialGradient id="halo" cx="50%" cy="50%" r="50%">
+                      <stop offset="0%" stopColor="#61dafb" stopOpacity="0.6"/>
+                      <stop offset="100%" stopColor="#61dafb" stopOpacity="0"/>
+                    </radialGradient>
+                    <linearGradient id="coin" x1="0" y1="0" x2="1" y2="1">
+                      <stop offset="0%" stopColor="#ffe066"/>
+                      <stop offset="100%" stopColor="#61dafb"/>
+                    </linearGradient>
+                  </defs>
+                  <circle cx="32" cy="32" r="28" fill="url(#coin)" stroke="#fff" strokeWidth="2" filter="url(#glow)"/>
+                  <circle cx="32" cy="32" r="32" fill="url(#halo)"/>
+                  <text x="32" y="41" textAnchor="middle" fontSize="28" fontWeight="bold" fill="#232526" filter="url(#shadow)">Ξ</text>
+                </svg>
+              </span>
+            </div>
+            <h2 className="intro-title">Bienvenue sur <span className="intro-title-accent">DEX Swap App</span></h2>
+            <p className="intro-desc">
+              Échangez vos cryptomonnaies instantanément, sans intermédiaire, sur plusieurs réseaux Ethereum.<br/>
+              <b>Sécurité, rapidité, liberté.</b><br/>
+              Cliquez sur "Commencer".
+            </p>
+            <button className="intro-btn" onClick={e => {e.stopPropagation(); setShowIntro(false);}}>Commencer</button>
+          </div>
+        </div>
+      )}
       <header className="App-header">
         <button
           className={"toggle-mode-btn" + (lightMode ? " active" : "")}
@@ -466,29 +519,76 @@ function App() {
           {error && <div className="swap-status-error">{error}</div>}
         </div>
       </header>
-      {/* Historique des swaps */}
-      {swapHistory.length > 0 && (
-        <div className="swap-history-card">
-          <div className="swap-history-title">Historique des swaps</div>
-          {swapHistory.map((h, i) => (
-            <div key={i} className="swap-history-item">
-              <span>{h.amount} <img src={TOKENS.find(t => t.symbol === h.fromToken)?.logo} alt={h.fromToken} className="token-icon" /> {h.fromToken} → <img src={TOKENS.find(t => t.symbol === h.toToken)?.logo} alt={h.toToken} className="token-icon" /> {h.toToken}</span>
-              <span className="swap-history-time">{h.date}</span>
-            </div>
-          ))}
+      {/* Onglets de navigation */}
+      {!showIntro && (
+        <Tabs
+          tabs={[
+            { key: 'swap', label: 'Swap', icon: <span role="img" aria-label="swap">🔄</span> },
+            { key: 'help', label: 'Aide', icon: <span role="img" aria-label="aide">❓</span> },
+            { key: 'info', label: 'Infos', icon: <span role="img" aria-label="infos">ℹ️</span> },
+          ]}
+          current={tab}
+          onChange={setTab}
+        />
+      )}
+
+      {/* Contenu selon l’onglet */}
+      {tab === 'swap' && (
+        <>
+          <header className="App-header">
+            {/* ... swap UI inchangée ... */}
+            {/* Historique des swaps */}
+            {swapHistory.length > 0 && (
+              <div className="swap-history-card">
+                <div className="swap-history-title">Historique des swaps</div>
+                {swapHistory.map((h, i) => (
+                  <div key={i} className="swap-history-item">
+                    <span>{h.amount} <img src={TOKENS.find(t => t.symbol === h.fromToken)?.logo} alt={h.fromToken} className="token-icon" /> {h.fromToken} → <img src={TOKENS.find(t => t.symbol === h.toToken)?.logo} alt={h.toToken} className="token-icon" /> {h.toToken}</span>
+                    <span className="swap-history-time">{h.date}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </header>
+        </>
+      )}
+      {tab === 'help' && (
+        <div className="swap-card" style={{maxWidth:420,margin:'32px auto'}}>
+          <h2 style={{color:'#61dafb',marginBottom:12}}>Aide & FAQ</h2>
+          <ul style={{textAlign:'left',lineHeight:1.7}}>
+            <li><b>Comment connecter mon wallet&nbsp;?</b><br/>Clique sur “Connect MetaMask” sur l’onglet Swap. Installe MetaMask si besoin.</li>
+            <li><b>Comment choisir le réseau&nbsp;?</b><br/>Utilise le menu déroulant en haut de l’onglet Swap pour passer de Sepolia à Mainnet.</li>
+            <li><b>Comment fonctionne le swap&nbsp;?</b><br/>Sélectionne les tokens, entre le montant, simule puis valide. La transaction se signe dans le wallet.</li>
+            <li><b>Pourquoi certains swaps ne fonctionnent pas&nbsp;?</b><br/>La démo supporte surtout ETH⇄USDC sur Sepolia/Mainnet. Les autres couples sont à venir.</li>
+            <li><b>Où voir l’historique&nbsp;?</b><br/>L’historique s’affiche sous le formulaire Swap après chaque échange réussi.</li>
+          </ul>
+          <div style={{marginTop:18,fontSize:'0.98em',color:'#ffe066'}}>Besoin d’aide&nbsp;? Contacte le développeur sur GitHub&nbsp;: <a href="https://github.com/eulogep" target="_blank" rel="noopener noreferrer" style={{color:'#61dafb'}}>eulogep</a></div>
+        </div>
+      )}
+      {tab === 'info' && (
+        <div className="swap-card" style={{maxWidth:420,margin:'32px auto'}}>
+          <h2 style={{color:'#ffe066',marginBottom:12}}>À propos</h2>
+          <ul style={{textAlign:'left',lineHeight:1.7}}>
+            <li><b>DEX Swap App</b> — v1.0</li>
+            <li>Développé par <b>Euloge Mabiala</b></li>
+            <li>Frontend&nbsp;: React 18, ethers.js, Uniswap SDK</li>
+            <li>Déploiement&nbsp;: <a href="https://eulogep.github.io/dex-swap-app/" target="_blank" rel="noopener noreferrer" style={{color:'#61dafb'}}>GitHub Pages</a></li>
+            <li>Code source&nbsp;: <a href="https://github.com/eulogep/dex-swap-app" target="_blank" rel="noopener noreferrer" style={{color:'#61dafb'}}>github.com/eulogep/dex-swap-app</a></li>
+          </ul>
+          <div style={{marginTop:18,fontSize:'0.98em',color:'#ffe066'}}>Open source & sans collecte de données.</div>
         </div>
       )}
 
-    {/* Toast notification */}
-    {toast.show && (
-      <div className={`toast ${toast.status}`} role="alert" aria-live="assertive">
-        {toast.message}
-      </div>
-    )}
-    <footer className="app-footer">
-      <span>Réalisé par <b>Euloge Mabiala</b></span>
-    </footer>
-  </div>
+      {/* Toast notification */}
+      {toast.show && (
+        <div className={`toast ${toast.status}`} role="alert" aria-live="assertive">
+          {toast.message}
+        </div>
+      )}
+      <footer className="app-footer">
+        <span>Réalisé par <b>Euloge Mabiala</b></span>
+      </footer>
+    </div>
   );
 }
 

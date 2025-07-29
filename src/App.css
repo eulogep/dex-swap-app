@@ -1,3 +1,137 @@
+.intro-overlay {
+  position: fixed;
+  z-index: 9999;
+  inset: 0;
+  background: radial-gradient(circle at 60% 30%, #61dafb33 0%, #232526 80%);
+  backdrop-filter: blur(10px) saturate(1.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeInIntro 0.8s cubic-bezier(.4,0,.2,1);
+  transition: opacity 0.5s cubic-bezier(.4,0,.2,1);
+}
+@keyframes fadeInIntro {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.intro-card {
+  background: rgba(40,48,72,0.55);
+  border-radius: 28px;
+  padding: 44px 34px 36px 34px;
+  box-shadow: 0 8px 40px #61dafb44, 0 2px 8px #000c;
+  max-width: 420px;
+  width: 94vw;
+  text-align: center;
+  color: #fff;
+  position: relative;
+  animation: popInIntro 0.7s cubic-bezier(.4,0,.2,1);
+  border: 1.5px solid #61dafb33;
+  backdrop-filter: blur(12px) saturate(1.4);
+  overflow: hidden;
+}
+@keyframes popInIntro {
+  from { transform: scale(0.95) translateY(30px); opacity: 0; }
+  to { transform: scale(1) translateY(0); opacity: 1; }
+}
+.intro-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+.crypto-coin {
+  display: inline-block;
+  position: relative;
+  filter: drop-shadow(0 0 14px #61dafb99);
+  animation: coinPop 1.8s cubic-bezier(.4,0,.2,1) 0s 1, coinFloat 2.2s infinite alternate cubic-bezier(.4,0,.2,1);
+}
+@keyframes coinPop {
+  0% { transform: scale(0.7) rotate(-18deg); opacity: 0; }
+  70% { transform: scale(1.13) rotate(7deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+@keyframes coinFloat {
+  from { transform: translateY(0) scale(1); }
+  to { transform: translateY(-10px) scale(1.04) rotate(-4deg); }
+}
+.crypto-coin svg {
+  filter: drop-shadow(0 0 24px #61dafb99) drop-shadow(0 0 8px #ffe06677);
+}
+.intro-title {
+  font-size: 2.2rem;
+  font-weight: 700;
+  margin-bottom: 16px;
+  letter-spacing: 0.01em;
+  background: linear-gradient(90deg,#61dafb 0%,#ffe066 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeSlideInTitle 1.1s cubic-bezier(.4,0,.2,1) 0.5s forwards;
+}
+@keyframes fadeSlideInTitle {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.intro-title-accent {
+  background: linear-gradient(90deg,#ffe066 0%,#61dafb 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 8px #ffe06699);
+  animation: glowAccent 2.5s infinite alternate cubic-bezier(.4,0,.2,1);
+}
+@keyframes glowAccent {
+  from { filter: drop-shadow(0 0 8px #ffe06699); }
+  to { filter: drop-shadow(0 0 18px #61dafbcc); }
+}
+.intro-desc {
+  font-size: 1.15rem;
+  margin-bottom: 28px;
+  line-height: 1.6;
+  color: #e1f7ff;
+  opacity: 0;
+  animation: fadeInDesc 1.1s cubic-bezier(.4,0,.2,1) 1s forwards;
+}
+@keyframes fadeInDesc {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.intro-btn {
+  background: linear-gradient(90deg,#61dafb 0%,#ffe066 100%);
+  color: #232526;
+  border: none;
+  border-radius: 16px;
+  padding: 14px 36px;
+  font-size: 1.13rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 2px 16px #61dafb33;
+  transition: background 0.2s, transform 0.12s, box-shadow 0.2s;
+  outline: none;
+  opacity: 0;
+  animation: fadeInBtn 1.1s cubic-bezier(.4,0,.2,1) 1.5s forwards;
+}
+.intro-btn:hover, .intro-btn:focus {
+  background: linear-gradient(90deg,#ffe066 0%,#61dafb 100%);
+  transform: scale(1.07);
+  box-shadow: 0 4px 32px #ffe06655;
+}
+@keyframes fadeInBtn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@media (max-width: 500px) {
+  .intro-card { padding: 22px 8vw 18px 8vw; }
+  .intro-title { font-size: 1.3rem; }
+  .intro-logo { font-size: 2.1rem; }
+  .intro-desc { font-size: 0.97rem; }
+  .intro-btn { font-size: 0.97rem; padding: 10px 20px; }
+}
+
 body {
   background: linear-gradient(120deg,#232526,#414345 100%);
   min-height: 100vh;
