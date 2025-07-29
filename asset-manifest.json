@@ -1,0 +1,21 @@
+{
+  "files": {
+    "main.css": "/dex-swap-app/static/css/main.f57aadf8.css",
+    "main.js": "/dex-swap-app/static/js/main.6a62633f.js",
+    "static/js/488.72394dae.chunk.js": "/dex-swap-app/static/js/488.72394dae.chunk.js",
+    "static/media/ethereum-eth-logo.png": "/dex-swap-app/static/media/ethereum-eth-logo.a85b6de0dc4a013ae2f8.png",
+    "static/media/usd-coin-usdc-logo.png": "/dex-swap-app/static/media/usd-coin-usdc-logo.c4477cfcf6565cacc68b.png",
+    "static/media/wbtc-logo.png": "/dex-swap-app/static/media/wbtc-logo.80c6afd146f4c131853a.png",
+    "service-worker.js": "/dex-swap-app/service-worker.js",
+    "static/media/usdt-logo.png": "/dex-swap-app/static/media/usdt-logo.006177e6b2ff9c8fcfb9.png",
+    "static/media/dai-logo.png": "/dex-swap-app/static/media/dai-logo.849478a756d546e306e8.png",
+    "index.html": "/dex-swap-app/index.html",
+    "main.f57aadf8.css.map": "/dex-swap-app/static/css/main.f57aadf8.css.map",
+    "main.6a62633f.js.map": "/dex-swap-app/static/js/main.6a62633f.js.map",
+    "488.72394dae.chunk.js.map": "/dex-swap-app/static/js/488.72394dae.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.f57aadf8.css",
+    "static/js/main.6a62633f.js"
+  ]
+}
