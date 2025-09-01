@@ -51,6 +51,16 @@ Notes
 - Some pairs are shown for demo; not all pairs may be tradable at any time.
 - Fees and gas costs depend on network conditions.
 
+## Screenshots
+
+Intro overlay
+
+![Intro screen with welcome card](https://cdn.builder.io/api/v1/image/assets%2Fac048846706146db8083881472b32a15%2F069b1a30a40e49a3b9cf26d38efbc30f?format=webp&width=800)
+
+Home with network selector and wallet button
+
+![Home screen with network selector and Connect MetaMask](https://cdn.builder.io/api/v1/image/assets%2Fac048846706146db8083881472b32a15%2F1fb9464dfc764eaeb6ef854183e59e4b?format=webp&width=800)
+
 ## Accessibility
 
 - Keyboard support on navigation and forms
