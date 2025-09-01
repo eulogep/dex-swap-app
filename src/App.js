@@ -239,13 +239,15 @@ function App() {
   return (
     <div className="App">
       <div className="finance-bg" aria-hidden="true">
-        {Array.from({ length: 15 }).map((_, i) => (
+        {Array.from({ length: 40 }).map((_, i) => (
           <span
             key={i}
             className={
-              'finance-coin ' + (i % 3 === 0 ? 'coin-sm' : i % 3 === 1 ? 'coin-md' : 'coin-lg')
+              'finance-coin ' +
+              (i % 4 === 0 ? 'coin-sm' : i % 4 === 1 ? 'coin-md' : i % 4 === 2 ? 'coin-lg' : 'coin-xl') +
+              ' drift-' + ((i % 10) + 1) + (i % 5 === 0 ? ' coin-blur' : '')
             }
-            data-symbol={i % 3 === 0 ? '$' : i % 3 === 1 ? 'Ξ' : '₿'}
+            data-symbol={i % 4 === 0 ? '$' : i % 4 === 1 ? 'Ξ' : i % 4 === 2 ? '₿' : '€'}
           />
         ))}
       </div>
