@@ -511,6 +511,37 @@ body.light-mode .swap-select:focus, body.light-mode .swap-input:focus {
   color: #61dafb;
 }
 
+.creator-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.creator-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2.5px solid #61dafb;
+  box-shadow: 0 2px 10px #61dafb33, 0 0 6px #ffe06633;
+  background: #fff;
+}
+.creator-meta {
+  display: flex;
+  flex-direction: column;
+}
+.creator-name {
+  font-weight: 700;
+  color: #ffe066;
+}
+.creator-role {
+  color: #e1f7ff;
+  font-size: 0.95em;
+}
+body.light-mode .creator-role {
+  color: #232526;
+}
+
 /* Floating label effect */
 .swap-label {
   position: absolute;
