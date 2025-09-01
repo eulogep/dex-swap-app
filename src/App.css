@@ -246,6 +246,8 @@ body.light-mode .toggle-mode-btn {
   justify-content: flex-start;
   padding-top: 40px;
   background: none;
+  position: relative;
+  z-index: 1;
 }
 
 .swap-title {
@@ -459,6 +461,89 @@ body.light-mode .swap-select:focus, body.light-mode .swap-input:focus {
   box-shadow: 0 0 0 2.5px #ffe06633;
 }
 
+/* Inline styles moved to classes */
+.toggle-mode-fixed {
+  position: absolute;
+  top: 18px;
+  right: 22px;
+  z-index: 2;
+}
+
+.swap-field {
+  position: relative;
+  margin-bottom: 18px;
+}
+
+.swap-select,
+.swap-input {
+  width: 100%;
+}
+
+.placeholder-dash {
+  color: #aaa;
+}
+
+.content-card-narrow {
+  max-width: 420px;
+  margin: 32px auto;
+}
+
+.help-title {
+  color: #61dafb;
+  margin-bottom: 12px;
+}
+
+.info-title {
+  color: #ffe066;
+  margin-bottom: 12px;
+}
+
+.section-list {
+  text-align: left;
+  line-height: 1.7;
+}
+
+.support-note {
+  margin-top: 18px;
+  font-size: 0.98em;
+  color: #ffe066;
+}
+
+.link-accent {
+  color: #61dafb;
+}
+
+.creator-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.creator-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2.5px solid #61dafb;
+  box-shadow: 0 2px 10px #61dafb33, 0 0 6px #ffe06633;
+  background: #fff;
+}
+.creator-meta {
+  display: flex;
+  flex-direction: column;
+}
+.creator-name {
+  font-weight: 700;
+  color: #ffe066;
+}
+.creator-role {
+  color: #e1f7ff;
+  font-size: 0.95em;
+}
+body.light-mode .creator-role {
+  color: #232526;
+}
+
 /* Floating label effect */
 .swap-label {
   position: absolute;
@@ -547,6 +632,20 @@ body.light-mode .swap-select:not([value='']) ~ .swap-label {
 }
 .swap-btn:active {
   transform: scale(0.97);
+}
+
+.btn-ic {
+  margin-right: 8px;
+  vertical-align: middle;
+  transition: transform 0.18s ease;
+}
+.swap-btn:hover .btn-ic,
+.swap-btn:focus .btn-ic,
+.swap-btn-main:hover .btn-ic,
+.swap-btn-main:focus .btn-ic,
+.connect-btn:hover .btn-ic,
+.connect-btn:focus .btn-ic {
+  transform: scale(1.12) rotate(-6deg);
 }
 .swap-btn:disabled {
   background: #444;
@@ -705,6 +804,10 @@ body.light-mode .simulate-btn:before {
     top: 6px !important;
     right: 7px !important;
   }
+  .toggle-mode-fixed {
+    top: 6px;
+    right: 7px;
+  }
   .toast {
     min-width: 90px;
     padding: 7px 6vw;
@@ -748,6 +851,113 @@ body.light-mode .simulate-btn:before {
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+/* Finance floating background */
+.finance-bg {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+}
+.finance-coin {
+  position: absolute;
+  bottom: -12vh;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #ffe066 0%, #61dafb 100%);
+  box-shadow: 0 6px 24px #61dafb22, 0 2px 10px #0003;
+  border: 2px solid #61dafbAA;
+  display: inline-block;
+  opacity: 0.22;
+  animation-name: finance-float-up;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+.finance-coin::before {
+  content: attr(data-symbol);
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #232526;
+  font-weight: 800;
+  text-shadow: 0 1px 2px #fff8;
+}
+.coin-sm { width: 22px; height: 22px; font-size: 12px; }
+.coin-md { width: 34px; height: 34px; font-size: 16px; }
+.coin-lg { width: 46px; height: 46px; font-size: 20px; }
+.coin-xl { width: 58px; height: 58px; font-size: 24px; }
+
+/* drift presets */
+.drift-1  { --dx: -24px; }
+.drift-2  { --dx: -16px; }
+.drift-3  { --dx: -10px; }
+.drift-4  { --dx: -6px; }
+.drift-5  { --dx: -2px; }
+.drift-6  { --dx: 2px; }
+.drift-7  { --dx: 6px; }
+.drift-8  { --dx: 10px; }
+.drift-9  { --dx: 16px; }
+.drift-10 { --dx: 24px; }
+
+.coin-blur { filter: blur(1px); }
+
+@keyframes finance-float-up {
+  0%   { transform: translate(0, 0) rotate(0deg); opacity: 0; }
+  10%  { opacity: 0.28; }
+  90%  { opacity: 0.24; }
+  100% { transform: translate(var(--dx, 0), -120vh) rotate(360deg); opacity: 0; }
+}
+
+/* positions, delays, durations */
+.finance-bg .finance-coin:nth-child(1)  { left: 2%;  animation-duration: 22s; animation-delay: -2s; }
+.finance-bg .finance-coin:nth-child(2)  { left: 6%;  animation-duration: 26s; animation-delay: -8s; }
+.finance-bg .finance-coin:nth-child(3)  { left: 10%; animation-duration: 24s; animation-delay: -5s; }
+.finance-bg .finance-coin:nth-child(4)  { left: 14%; animation-duration: 28s; animation-delay: -12s; }
+.finance-bg .finance-coin:nth-child(5)  { left: 18%; animation-duration: 23s; animation-delay: -4s; }
+.finance-bg .finance-coin:nth-child(6)  { left: 22%; animation-duration: 29s; animation-delay: -10s; }
+.finance-bg .finance-coin:nth-child(7)  { left: 26%; animation-duration: 25s; animation-delay: -6s; }
+.finance-bg .finance-coin:nth-child(8)  { left: 30%; animation-duration: 27s; animation-delay: -14s; }
+.finance-bg .finance-coin:nth-child(9)  { left: 34%; animation-duration: 24s; animation-delay: -3s; }
+.finance-bg .finance-coin:nth-child(10) { left: 38%; animation-duration: 30s; animation-delay: -9s; }
+.finance-bg .finance-coin:nth-child(11) { left: 42%; animation-duration: 22s; animation-delay: -7s; }
+.finance-bg .finance-coin:nth-child(12) { left: 46%; animation-duration: 26s; animation-delay: -1s; }
+.finance-bg .finance-coin:nth-child(13) { left: 50%; animation-duration: 28s; animation-delay: -11s; }
+.finance-bg .finance-coin:nth-child(14) { left: 54%; animation-duration: 23s; animation-delay: -13s; }
+.finance-bg .finance-coin:nth-child(15) { left: 58%; animation-duration: 27s; animation-delay: -15s; }
+.finance-bg .finance-coin:nth-child(16) { left: 62%; animation-duration: 22s; animation-delay: -2s; }
+.finance-bg .finance-coin:nth-child(17) { left: 66%; animation-duration: 26s; animation-delay: -8s; }
+.finance-bg .finance-coin:nth-child(18) { left: 70%; animation-duration: 24s; animation-delay: -5s; }
+.finance-bg .finance-coin:nth-child(19) { left: 74%; animation-duration: 28s; animation-delay: -12s; }
+.finance-bg .finance-coin:nth-child(20) { left: 78%; animation-duration: 23s; animation-delay: -4s; }
+.finance-bg .finance-coin:nth-child(21) { left: 82%; animation-duration: 29s; animation-delay: -10s; }
+.finance-bg .finance-coin:nth-child(22) { left: 86%; animation-duration: 25s; animation-delay: -6s; }
+.finance-bg .finance-coin:nth-child(23) { left: 90%; animation-duration: 27s; animation-delay: -14s; }
+.finance-bg .finance-coin:nth-child(24) { left: 94%; animation-duration: 24s; animation-delay: -3s; }
+.finance-bg .finance-coin:nth-child(25) { left: 4%;  animation-duration: 30s; animation-delay: -9s; }
+.finance-bg .finance-coin:nth-child(26) { left: 8%;  animation-duration: 22s; animation-delay: -7s; }
+.finance-bg .finance-coin:nth-child(27) { left: 12%; animation-duration: 26s; animation-delay: -1s; }
+.finance-bg .finance-coin:nth-child(28) { left: 16%; animation-duration: 28s; animation-delay: -11s; }
+.finance-bg .finance-coin:nth-child(29) { left: 20%; animation-duration: 23s; animation-delay: -13s; }
+.finance-bg .finance-coin:nth-child(30) { left: 24%; animation-duration: 27s; animation-delay: -15s; }
+.finance-bg .finance-coin:nth-child(31) { left: 28%; animation-duration: 22s; animation-delay: -2s; }
+.finance-bg .finance-coin:nth-child(32) { left: 32%; animation-duration: 26s; animation-delay: -8s; }
+.finance-bg .finance-coin:nth-child(33) { left: 36%; animation-duration: 24s; animation-delay: -5s; }
+.finance-bg .finance-coin:nth-child(34) { left: 40%; animation-duration: 28s; animation-delay: -12s; }
+.finance-bg .finance-coin:nth-child(35) { left: 44%; animation-duration: 23s; animation-delay: -4s; }
+.finance-bg .finance-coin:nth-child(36) { left: 48%; animation-duration: 29s; animation-delay: -10s; }
+.finance-bg .finance-coin:nth-child(37) { left: 52%; animation-duration: 25s; animation-delay: -6s; }
+.finance-bg .finance-coin:nth-child(38) { left: 56%; animation-duration: 27s; animation-delay: -14s; }
+.finance-bg .finance-coin:nth-child(39) { left: 60%; animation-duration: 24s; animation-delay: -3s; }
+.finance-bg .finance-coin:nth-child(40) { left: 64%; animation-duration: 30s; animation-delay: -9s; }
+
+body.light-mode .finance-coin {
+  background: radial-gradient(circle at 30% 30%, #61dafb 0%, #ffe066 100%);
+  border-color: #ffe066AA;
+  box-shadow: 0 6px 24px #ffe06622, 0 2px 10px #0002;
+  opacity: 0.18;
 }
 
 .app-footer {
@@ -868,4 +1078,3 @@ body.light-mode .simulate-btn:before {
   from { opacity: 0; transform: translateX(-50%) translateY(-20px); }
   to { opacity: 0.97; transform: translateX(-50%) translateY(0); }
 }
-

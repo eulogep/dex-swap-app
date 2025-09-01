@@ -4,10 +4,9 @@ import './App.css';
 
 import React, { useState, useEffect } from 'react';
 import Tabs from './components/Tabs';
+import { FiRefreshCw, FiZap, FiLink, FiSun, FiMoon, FiHelpCircle, FiInfo } from 'react-icons/fi';
 import './components/Tabs.css';
 import { ethers } from 'ethers';
-import { Token, CurrencyAmount, TradeType, Route, Pool, Trade } from '@uniswap/v3-sdk';
-import { Token as UniToken, CurrencyAmount as UniCurrencyAmount, Percent, Ether, WETH9 } from '@uniswap/sdk-core';
 
 // --- CONFIG MULTI-CHAINS & TOKENS ---
 const NETWORKS = [
@@ -134,9 +133,17 @@ function App() {
   const RPC_URL = network.rpcUrl;
 
   const [swapHistory, setSwapHistory] = useState([]);
-  const [lightMode, setLightMode] = useState(false);
+  const [lightMode, setLightMode] = useState(() => {
+    try {
+      const saved = localStorage.getItem('lightMode');
+      return saved ? saved === 'true' : false;
+    } catch (e) {
+      return false;
+    }
+  });
   useEffect(() => {
     document.body.classList.toggle('light-mode', lightMode);
+    try { localStorage.setItem('lightMode', String(lightMode)); } catch (e) {}
   }, [lightMode]);
   const [toast, setToast] = useState({ show: false, message: '', status: '' });
   // Fermer le toast après 3s
@@ -231,6 +238,19 @@ function App() {
 
   return (
     <div className="App">
+      <div className="finance-bg" aria-hidden="true">
+        {Array.from({ length: 40 }).map((_, i) => (
+          <span
+            key={i}
+            className={
+              'finance-coin ' +
+              (i % 4 === 0 ? 'coin-sm' : i % 4 === 1 ? 'coin-md' : i % 4 === 2 ? 'coin-lg' : 'coin-xl') +
+              ' drift-' + ((i % 10) + 1) + (i % 5 === 0 ? ' coin-blur' : '')
+            }
+            data-symbol={i % 4 === 0 ? '$' : i % 4 === 1 ? 'Ξ' : i % 4 === 2 ? '₿' : '€'}
+          />
+        ))}
+      </div>
       {showIntro && (
         <div className="intro-overlay" onClick={() => setShowIntro(false)}>
           <div className="intro-card">
@@ -265,17 +285,17 @@ function App() {
       )}
       <header className="App-header">
         <button
-          className={"toggle-mode-btn" + (lightMode ? " active" : "")}
+          className={("toggle-mode-btn" + (lightMode ? " active" : "")) + " toggle-mode-fixed"}
           aria-label={lightMode ? "Basculer en mode sombre" : "Basculer en mode clair"}
+          aria-pressed={lightMode}
           onClick={() => setLightMode(m => !m)}
-          style={{position:'absolute',top:18,right:22,zIndex:2}}
         >
-          {lightMode ? '🌞' : '🌙'}
+          {lightMode ? <FiSun aria-hidden /> : <FiMoon aria-hidden />}
         </button>
          <h1 className="swap-title">DEX Swap App <span className="testnet-badge">{network.name}</span></h1>
          <div className="swap-card">
            {/* Sélection du réseau */}
-           <div className="swap-field" style={{position:'relative',marginBottom:18}}>
+           <div className="swap-field">
   <select
     id="network-select"
     className="swap-select"
@@ -284,7 +304,7 @@ function App() {
     aria-label="Sélection du réseau"
     tabIndex={0}
     required
-    style={{width:'100%'}}
+    
   >
     {NETWORKS.map((net, idx) => (
       <option key={net.chainId} value={idx}>{net.name}</option>
@@ -299,7 +319,7 @@ function App() {
                  <span className="wallet-address">{account}</span>
                </div>
                <form className="swap-form" onSubmit={e => e.preventDefault()} aria-label="Formulaire de swap" tabIndex={0}>
-                 <div className="swap-field" style={{position:'relative',marginBottom:18}}>
+                 <div className="swap-field">
   <div className="swap-token-select">
     {TOKENS.find(t => t.symbol === fromToken) && (
       <img src={TOKENS.find(t => t.symbol === fromToken).logo} alt={fromToken} className="token-icon" />
@@ -318,7 +338,7 @@ function App() {
       aria-label="Sélection du token source"
       tabIndex={0}
       required
-      style={{width:'100%'}}
+      
     >
       {TOKENS.map(t => (
         <option key={t.symbol} value={t.symbol}>{t.symbol}</option>
@@ -327,7 +347,7 @@ function App() {
     <label className="swap-label" htmlFor="from-token-select">From</label>
   </div>
 </div>
-                 <div className="swap-field" style={{position:'relative',marginBottom:18}}>
+                 <div className="swap-field">
   <div className="swap-token-select">
     {TOKENS.find(t => t.symbol === toToken) && (
       <img src={TOKENS.find(t => t.symbol === toToken).logo} alt={toToken} className="token-icon" />
@@ -346,7 +366,7 @@ function App() {
       aria-label="Sélection du token destination"
       tabIndex={0}
       required
-      style={{width:'100%'}}
+      
     >
       {TOKENS.filter(t => t.symbol !== fromToken).map(t => (
         <option key={t.symbol} value={t.symbol}>{t.symbol}</option>
@@ -355,7 +375,7 @@ function App() {
     <label className="swap-label" htmlFor="to-token-select">To</label>
   </div>
 </div>
-                <div className="swap-field" style={{position:'relative',marginBottom:18}}>
+                <div className="swap-field">
   <input
     id="amount-input"
     type="number"
@@ -368,11 +388,11 @@ function App() {
     aria-label="Montant à échanger"
     tabIndex={0}
     required
-    style={{width:'100%'}}
+    
   />
   <label className="swap-label" htmlFor="amount-input">Montant</label>
 </div>
-                <div className="swap-field" style={{position:'relative',marginBottom:18}}>
+                <div className="swap-field">
   <input
     id="slippage-input"
     type="number"
@@ -386,12 +406,12 @@ function App() {
     aria-label="Slippage toléré (%)"
     tabIndex={0}
     required
-    style={{width:'100%'}}
+    
   />
   <label className="swap-label" htmlFor="slippage-input">Slippage (%)</label>
 </div>
                 <div className="swap-summary">
-                  <div className="swap-summary-row">Prix estimé : <span className="swap-summary-value">{price !== null ? price : <span style={{color: '#aaa'}}>--</span>} {toToken}</span></div>
+                  <div className="swap-summary-row">Prix estimé : <span className="swap-summary-value">{price !== null ? price : <span className="placeholder-dash">--</span>} {toToken}</span></div>
                   <div className="swap-summary-row">Frais Uniswap : <span className="swap-summary-value">0.3%</span></div>
                   {simulateMsg && (
                     <div className="swap-summary-row swap-simulate-msg">{simulateMsg}</div>
@@ -433,7 +453,7 @@ function App() {
                     }}
                     disabled={loading || !amount || !price || price === '--' || isNaN(Number(price))}
                   >
-                    {loading ? <span className="loader"></span> : 'Simuler swap'}
+                    {loading ? <span className="loader"></span> : (<><FiZap className="btn-ic" aria-hidden /> Simuler swap</>)}
                   </button>
                   <button
                     className="swap-btn swap-btn-main"
@@ -508,13 +528,13 @@ function App() {
                       }
                     }}
                   >
-                    {loading ? <span className="loader"></span> : 'Swap ETH → USDC'}
+                    {loading ? <span className="loader"></span> : (<><FiRefreshCw className="btn-ic" aria-hidden /> Swap ETH → USDC</>)}
                   </button>
                 </div>
               </form>
             </>
           ) : (
-            <button className="swap-btn connect-btn" onClick={connectWallet}>Connect MetaMask</button>
+            <button className="swap-btn connect-btn" onClick={connectWallet}><FiLink className="btn-ic" aria-hidden /> Connect MetaMask</button>
           )}
           {error && <div className="swap-status-error">{error}</div>}
         </div>
@@ -523,9 +543,9 @@ function App() {
       {!showIntro && (
         <Tabs
           tabs={[
-            { key: 'swap', label: 'Swap', icon: <span role="img" aria-label="swap">🔄</span> },
-            { key: 'help', label: 'Aide', icon: <span role="img" aria-label="aide">❓</span> },
-            { key: 'info', label: 'Infos', icon: <span role="img" aria-label="infos">ℹ️</span> },
+            { key: 'swap', label: 'Swap', icon: <FiRefreshCw aria-hidden /> },
+            { key: 'help', label: 'Aide', icon: <FiHelpCircle aria-hidden /> },
+            { key: 'info', label: 'Infos', icon: <FiInfo aria-hidden /> },
           ]}
           current={tab}
           onChange={setTab}
@@ -553,29 +573,41 @@ function App() {
         </>
       )}
       {tab === 'help' && (
-        <div className="swap-card" style={{maxWidth:420,margin:'32px auto'}}>
-          <h2 style={{color:'#61dafb',marginBottom:12}}>Aide & FAQ</h2>
-          <ul style={{textAlign:'left',lineHeight:1.7}}>
+        <div className="swap-card content-card-narrow">
+          <h2 className="help-title">Aide & FAQ</h2>
+          <ul className="section-list">
             <li><b>Comment connecter mon wallet&nbsp;?</b><br/>Clique sur “Connect MetaMask” sur l’onglet Swap. Installe MetaMask si besoin.</li>
             <li><b>Comment choisir le réseau&nbsp;?</b><br/>Utilise le menu déroulant en haut de l’onglet Swap pour passer de Sepolia à Mainnet.</li>
             <li><b>Comment fonctionne le swap&nbsp;?</b><br/>Sélectionne les tokens, entre le montant, simule puis valide. La transaction se signe dans le wallet.</li>
             <li><b>Pourquoi certains swaps ne fonctionnent pas&nbsp;?</b><br/>La démo supporte surtout ETH⇄USDC sur Sepolia/Mainnet. Les autres couples sont à venir.</li>
             <li><b>Où voir l’historique&nbsp;?</b><br/>L’historique s’affiche sous le formulaire Swap après chaque échange réussi.</li>
           </ul>
-          <div style={{marginTop:18,fontSize:'0.98em',color:'#ffe066'}}>Besoin d’aide&nbsp;? Contacte le développeur sur GitHub&nbsp;: <a href="https://github.com/eulogep" target="_blank" rel="noopener noreferrer" style={{color:'#61dafb'}}>eulogep</a></div>
+          <div className="support-note">Besoin d’aide&nbsp;? Contacte le développeur sur GitHub&nbsp;: <a href="https://github.com/eulogep" target="_blank" rel="noopener noreferrer" className="link-accent">eulogep</a></div>
         </div>
       )}
       {tab === 'info' && (
-        <div className="swap-card" style={{maxWidth:420,margin:'32px auto'}}>
-          <h2 style={{color:'#ffe066',marginBottom:12}}>À propos</h2>
-          <ul style={{textAlign:'left',lineHeight:1.7}}>
+        <div className="swap-card content-card-narrow">
+          <h2 className="info-title">À propos</h2>
+          <div className="creator-section" aria-label="Créateur">
+            <img
+              className="creator-avatar"
+              src="https://cdn.builder.io/api/v1/image/assets%2Fac048846706146db8083881472b32a15%2Fbd6916d37c114636bffd5dd85861d8dc?format=webp&width=800"
+              alt="Euloge Mabiala"
+              loading="lazy"
+              decoding="async"
+            />
+            <div className="creator-meta">
+              <div className="creator-name">Euloge Mabiala</div>
+              <div className="creator-role">Créateur & Développeur</div>
+            </div>
+          </div>
+          <ul className="section-list">
             <li><b>DEX Swap App</b> — v1.0</li>
-            <li>Développé par <b>Euloge Mabiala</b></li>
             <li>Frontend&nbsp;: React 18, ethers.js, Uniswap SDK</li>
-            <li>Déploiement&nbsp;: <a href="https://eulogep.github.io/dex-swap-app/" target="_blank" rel="noopener noreferrer" style={{color:'#61dafb'}}>GitHub Pages</a></li>
-            <li>Code source&nbsp;: <a href="https://github.com/eulogep/dex-swap-app" target="_blank" rel="noopener noreferrer" style={{color:'#61dafb'}}>github.com/eulogep/dex-swap-app</a></li>
+            <li>Déploiement&nbsp;: <a href="https://eulogep.github.io/dex-swap-app/" target="_blank" rel="noopener noreferrer" className="link-accent">GitHub Pages</a></li>
+            <li>Code source&nbsp;: <a href="https://github.com/eulogep/dex-swap-app" target="_blank" rel="noopener noreferrer" className="link-accent">github.com/eulogep/dex-swap-app</a></li>
           </ul>
-          <div style={{marginTop:18,fontSize:'0.98em',color:'#ffe066'}}>Open source & sans collecte de données.</div>
+          <div className="support-note">Open source & sans collecte de données.</div>
         </div>
       )}
 

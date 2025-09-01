@@ -1,9 +1,7 @@
-import React, { useRef } from 'react';
+import React from 'react';
 import './Tabs.css';
 
 export default function Tabs({ tabs, current, onChange, sticky }) {
-  const rippleRefs = useRef({});
-
   const handleTabClick = (e, key) => {
     // Ripple effect
     const btn = e.currentTarget;
@@ -17,8 +15,22 @@ export default function Tabs({ tabs, current, onChange, sticky }) {
     onChange(key);
   };
 
+  const handleKeyDown = (e, key) => {
+    if (!tabs || !tabs.length) return;
+    const idx = tabs.findIndex(t => t.key === current);
+    if (e.key === 'ArrowRight') {
+      const next = tabs[(idx + 1) % tabs.length];
+      onChange(next.key);
+      e.preventDefault();
+    } else if (e.key === 'ArrowLeft') {
+      const prev = tabs[(idx - 1 + tabs.length) % tabs.length];
+      onChange(prev.key);
+      e.preventDefault();
+    }
+  };
+
   return (
-    <div className={sticky ? 'tabs-nav tabs-sticky' : 'tabs-nav'}>
+    <div className={sticky ? 'tabs-nav tabs-sticky' : 'tabs-nav'} role="tablist">
       <div className="tabs-halo-bg"></div>
       {tabs.map(tab => (
         <button
@@ -28,7 +40,11 @@ export default function Tabs({ tabs, current, onChange, sticky }) {
             (current === tab.key ? ' active tab-animated' : '') +
             (tab.badge ? ' tab-badge-parent' : '')
           }
+          role="tab"
+          aria-selected={current === tab.key}
+          tabIndex={current === tab.key ? 0 : -1}
           onClick={e => handleTabClick(e, tab.key)}
+          onKeyDown={e => handleKeyDown(e, tab.key)}
         >
           {tab.icon && (
             <span className={
@@ -44,4 +60,3 @@ export default function Tabs({ tabs, current, onChange, sticky }) {
     </div>
   );
 }
-
