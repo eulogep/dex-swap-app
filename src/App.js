@@ -578,7 +578,7 @@ function App() {
             <img
               className="creator-avatar"
               src="https://cdn.builder.io/api/v1/image/assets%2Fac048846706146db8083881472b32a15%2Fbd6916d37c114636bffd5dd85861d8dc?format=webp&width=800"
-              alt="Photo du créateur"
+              alt="Euloge Mabiala"
               loading="lazy"
               decoding="async"
             />
