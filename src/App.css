@@ -459,6 +459,58 @@ body.light-mode .swap-select:focus, body.light-mode .swap-input:focus {
   box-shadow: 0 0 0 2.5px #ffe06633;
 }
 
+/* Inline styles moved to classes */
+.toggle-mode-fixed {
+  position: absolute;
+  top: 18px;
+  right: 22px;
+  z-index: 2;
+}
+
+.swap-field {
+  position: relative;
+  margin-bottom: 18px;
+}
+
+.swap-select,
+.swap-input {
+  width: 100%;
+}
+
+.placeholder-dash {
+  color: #aaa;
+}
+
+.content-card-narrow {
+  max-width: 420px;
+  margin: 32px auto;
+}
+
+.help-title {
+  color: #61dafb;
+  margin-bottom: 12px;
+}
+
+.info-title {
+  color: #ffe066;
+  margin-bottom: 12px;
+}
+
+.section-list {
+  text-align: left;
+  line-height: 1.7;
+}
+
+.support-note {
+  margin-top: 18px;
+  font-size: 0.98em;
+  color: #ffe066;
+}
+
+.link-accent {
+  color: #61dafb;
+}
+
 /* Floating label effect */
 .swap-label {
   position: absolute;
@@ -705,6 +757,10 @@ body.light-mode .simulate-btn:before {
     top: 6px !important;
     right: 7px !important;
   }
+  .toggle-mode-fixed {
+    top: 6px;
+    right: 7px;
+  }
   .toast {
     min-width: 90px;
     padding: 7px 6vw;
@@ -868,4 +924,3 @@ body.light-mode .simulate-btn:before {
   from { opacity: 0; transform: translateX(-50%) translateY(-20px); }
   to { opacity: 0.97; transform: translateX(-50%) translateY(0); }
 }
-
