@@ -4,6 +4,7 @@ import './App.css';
 
 import React, { useState, useEffect } from 'react';
 import Tabs from './components/Tabs';
+import { FiRefreshCw, FiZap, FiLink, FiSun, FiMoon, FiHelpCircle, FiInfo } from 'react-icons/fi';
 import './components/Tabs.css';
 import { ethers } from 'ethers';
 
@@ -276,7 +277,7 @@ function App() {
           aria-pressed={lightMode}
           onClick={() => setLightMode(m => !m)}
         >
-          {lightMode ? '🌞' : '🌙'}
+          {lightMode ? <FiSun aria-hidden /> : <FiMoon aria-hidden />}
         </button>
          <h1 className="swap-title">DEX Swap App <span className="testnet-badge">{network.name}</span></h1>
          <div className="swap-card">
@@ -439,7 +440,7 @@ function App() {
                     }}
                     disabled={loading || !amount || !price || price === '--' || isNaN(Number(price))}
                   >
-                    {loading ? <span className="loader"></span> : 'Simuler swap'}
+                    {loading ? <span className="loader"></span> : (<><FiZap className="btn-ic" aria-hidden /> Simuler swap</>)}
                   </button>
                   <button
                     className="swap-btn swap-btn-main"
@@ -514,13 +515,13 @@ function App() {
                       }
                     }}
                   >
-                    {loading ? <span className="loader"></span> : 'Swap ETH → USDC'}
+                    {loading ? <span className="loader"></span> : (<><FiRefreshCw className="btn-ic" aria-hidden /> Swap ETH → USDC</>)}
                   </button>
                 </div>
               </form>
             </>
           ) : (
-            <button className="swap-btn connect-btn" onClick={connectWallet}>Connect MetaMask</button>
+            <button className="swap-btn connect-btn" onClick={connectWallet}><FiLink className="btn-ic" aria-hidden /> Connect MetaMask</button>
           )}
           {error && <div className="swap-status-error">{error}</div>}
         </div>
@@ -529,9 +530,9 @@ function App() {
       {!showIntro && (
         <Tabs
           tabs={[
-            { key: 'swap', label: 'Swap', icon: <span role="img" aria-label="swap">🔄</span> },
-            { key: 'help', label: 'Aide', icon: <span role="img" aria-label="aide">❓</span> },
-            { key: 'info', label: 'Infos', icon: <span role="img" aria-label="infos">ℹ️</span> },
+            { key: 'swap', label: 'Swap', icon: <FiRefreshCw aria-hidden /> },
+            { key: 'help', label: 'Aide', icon: <FiHelpCircle aria-hidden /> },
+            { key: 'info', label: 'Infos', icon: <FiInfo aria-hidden /> },
           ]}
           current={tab}
           onChange={setTab}
