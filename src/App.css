@@ -631,6 +631,20 @@ body.light-mode .swap-select:not([value='']) ~ .swap-label {
 .swap-btn:active {
   transform: scale(0.97);
 }
+
+.btn-ic {
+  margin-right: 8px;
+  vertical-align: middle;
+  transition: transform 0.18s ease;
+}
+.swap-btn:hover .btn-ic,
+.swap-btn:focus .btn-ic,
+.swap-btn-main:hover .btn-ic,
+.swap-btn-main:focus .btn-ic,
+.connect-btn:hover .btn-ic,
+.connect-btn:focus .btn-ic {
+  transform: scale(1.12) rotate(-6deg);
+}
 .swap-btn:disabled {
   background: #444;
   color: #aaa;
