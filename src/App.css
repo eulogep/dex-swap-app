@@ -246,6 +246,8 @@ body.light-mode .toggle-mode-btn {
   justify-content: flex-start;
   padding-top: 40px;
   background: none;
+  position: relative;
+  z-index: 1;
 }
 
 .swap-title {
@@ -849,6 +851,73 @@ body.light-mode .simulate-btn:before {
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+/* Finance floating background */
+.finance-bg {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+}
+.finance-coin {
+  position: absolute;
+  bottom: -12vh;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #ffe066 0%, #61dafb 100%);
+  box-shadow: 0 6px 24px #61dafb22, 0 2px 10px #0003;
+  border: 2px solid #61dafbAA;
+  display: inline-block;
+  opacity: 0.22;
+  animation-name: finance-float-up;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+.finance-coin::before {
+  content: attr(data-symbol);
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #232526;
+  font-weight: 800;
+  text-shadow: 0 1px 2px #fff8;
+}
+.coin-sm { width: 22px; height: 22px; font-size: 12px; }
+.coin-md { width: 34px; height: 34px; font-size: 16px; }
+.coin-lg { width: 46px; height: 46px; font-size: 20px; }
+
+@keyframes finance-float-up {
+  0%   { transform: translateY(0) rotate(0deg); opacity: 0; }
+  10%  { opacity: 0.28; }
+  90%  { opacity: 0.24; }
+  100% { transform: translateY(-120vh) rotate(360deg); opacity: 0; }
+}
+
+/* positions, delays, durations */
+.finance-bg .finance-coin:nth-child(1)  { left: 4%;  animation-duration: 22s; animation-delay: -2s; }
+.finance-bg .finance-coin:nth-child(2)  { left: 12%; animation-duration: 26s; animation-delay: -8s; }
+.finance-bg .finance-coin:nth-child(3)  { left: 20%; animation-duration: 24s; animation-delay: -5s; }
+.finance-bg .finance-coin:nth-child(4)  { left: 28%; animation-duration: 28s; animation-delay: -12s; }
+.finance-bg .finance-coin:nth-child(5)  { left: 36%; animation-duration: 23s; animation-delay: -4s; }
+.finance-bg .finance-coin:nth-child(6)  { left: 44%; animation-duration: 29s; animation-delay: -10s; }
+.finance-bg .finance-coin:nth-child(7)  { left: 52%; animation-duration: 25s; animation-delay: -6s; }
+.finance-bg .finance-coin:nth-child(8)  { left: 60%; animation-duration: 27s; animation-delay: -14s; }
+.finance-bg .finance-coin:nth-child(9)  { left: 68%; animation-duration: 24s; animation-delay: -3s; }
+.finance-bg .finance-coin:nth-child(10) { left: 76%; animation-duration: 30s; animation-delay: -9s; }
+.finance-bg .finance-coin:nth-child(11) { left: 84%; animation-duration: 22s; animation-delay: -7s; }
+.finance-bg .finance-coin:nth-child(12) { left: 8%;  animation-duration: 26s; animation-delay: -1s; }
+.finance-bg .finance-coin:nth-child(13) { left: 24%; animation-duration: 28s; animation-delay: -11s; }
+.finance-bg .finance-coin:nth-child(14) { left: 48%; animation-duration: 23s; animation-delay: -13s; }
+.finance-bg .finance-coin:nth-child(15) { left: 72%; animation-duration: 27s; animation-delay: -15s; }
+
+body.light-mode .finance-coin {
+  background: radial-gradient(circle at 30% 30%, #61dafb 0%, #ffe066 100%);
+  border-color: #ffe066AA;
+  box-shadow: 0 6px 24px #ffe06622, 0 2px 10px #0002;
+  opacity: 0.18;
 }
 
 .app-footer {
