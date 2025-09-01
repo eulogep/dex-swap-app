@@ -574,9 +574,21 @@ function App() {
       {tab === 'info' && (
         <div className="swap-card content-card-narrow">
           <h2 className="info-title">À propos</h2>
+          <div className="creator-section" aria-label="Créateur">
+            <img
+              className="creator-avatar"
+              src="https://cdn.builder.io/api/v1/image/assets%2Fac048846706146db8083881472b32a15%2Fbd6916d37c114636bffd5dd85861d8dc?format=webp&width=800"
+              alt="Photo du créateur"
+              loading="lazy"
+              decoding="async"
+            />
+            <div className="creator-meta">
+              <div className="creator-name">Euloge Mabiala</div>
+              <div className="creator-role">Créateur & Développeur</div>
+            </div>
+          </div>
           <ul className="section-list">
             <li><b>DEX Swap App</b> — v1.0</li>
-            <li>Développé par <b>Euloge Mabiala</b></li>
             <li>Frontend&nbsp;: React 18, ethers.js, Uniswap SDK</li>
             <li>Déploiement&nbsp;: <a href="https://eulogep.github.io/dex-swap-app/" target="_blank" rel="noopener noreferrer" className="link-accent">GitHub Pages</a></li>
             <li>Code source&nbsp;: <a href="https://github.com/eulogep/dex-swap-app" target="_blank" rel="noopener noreferrer" className="link-accent">github.com/eulogep/dex-swap-app</a></li>
