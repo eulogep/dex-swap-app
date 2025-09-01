@@ -238,6 +238,17 @@ function App() {
 
   return (
     <div className="App">
+      <div className="finance-bg" aria-hidden="true">
+        {Array.from({ length: 15 }).map((_, i) => (
+          <span
+            key={i}
+            className={
+              'finance-coin ' + (i % 3 === 0 ? 'coin-sm' : i % 3 === 1 ? 'coin-md' : 'coin-lg')
+            }
+            data-symbol={i % 3 === 0 ? '$' : i % 3 === 1 ? 'Ξ' : '₿'}
+          />
+        ))}
+      </div>
       {showIntro && (
         <div className="intro-overlay" onClick={() => setShowIntro(false)}>
           <div className="intro-card">
