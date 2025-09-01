@@ -88,6 +88,20 @@ Contributions, bug reports, and ideas are welcome.
 - Uniswap v3, ethers.js, React
 - Design influences: glassmorphism/neon styles
 
+## Roadmap
+
+- Pool discovery via Uniswap subgraph and automatic fee tier selection
+- ERC‑20 approvals UX and allowance management
+- Multi‑quote routing and price impact details
+- i18n (FR/EN) and reduced‑motion preferences
+- PWA offline shell and install prompt
+- E2E tests (Playwright) and accessibility audits
+
+## Changelog
+
+- 2025‑09‑01: Accessibility improvements (tabs ARIA, keyboard), theme persistence, icons, animated finance background, creator section; README overhaul
+- 2025‑08‑20: Initial swap form, price preview, toasts, intro overlay
+
 ## Disclaimer
 
 This project is for educational/demo purposes. It is not financial advice. Use Mainnet at your own risk. Always review transactions before signing.
