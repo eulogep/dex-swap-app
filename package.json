@@ -3,22 +3,35 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@craco/craco": "^7.1.0",
+    "@headlessui/react": "^2.2.9",
+    "@heroicons/react": "^2.2.0",
+    "@tailwindcss/forms": "^0.5.10",
     "@uniswap/sdk-core": "^7.7.2",
     "@uniswap/v3-sdk": "^3.25.2",
+    "autoprefixer": "^10.4.21",
     "cra-template-pwa": "2.0.0",
     "ethers": "^6.15.0",
+    "framer-motion": "^12.23.22",
     "gh-pages": "^6.3.0",
+    "lucide-react": "^0.544.0",
+    "postcss": "^8.5.6",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-hot-toast": "^2.6.0",
     "react-icons": "^5.5.0",
+    "react-intersection-observer": "^9.16.0",
+    "react-query": "^3.39.3",
     "react-scripts": "5.0.1",
-    "web-vitals": "^5.0.3"
+    "tailwindcss": "^4.1.13",
+    "web-vitals": "^5.0.3",
+    "zustand": "^5.0.8"
   },
   "homepage": "https://eulogep.github.io/dex-swap-app",
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
+    "start": "craco start",
+    "build": "craco build",
+    "test": "craco test",
     "eject": "react-scripts eject",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d build"
@@ -27,7 +40,10 @@
     "extends": [
       "react-app",
       "react-app/jest"
-    ]
+    ],
+    "globals": {
+      "BigInt": "readonly"
+    }
   },
   "browserslist": {
     "production": [

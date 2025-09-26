@@ -1,0 +1,20 @@
+# Redirections pour SPA (Single Page Application)
+/*    /index.html   200
+
+# Redirections pour les anciennes URLs (si nécessaire)
+/swap    /    301
+/trade   /    301
+
+# Redirections pour les API externes (proxy pour éviter CORS)
+/api/prices/*  https://api.coingecko.com/api/v3/:splat  200
+/api/gas/*     https://ethgasstation.info/api/:splat   200
+
+# Redirections pour les assets optimisés
+/images/*  /static/media/:splat  200
+
+# Redirection pour le manifest PWA
+/manifest  /manifest.json  200
+
+# Redirection pour les favicons
+/favicon   /favicon.ico    200
+/apple-touch-icon  /logo192.png  200

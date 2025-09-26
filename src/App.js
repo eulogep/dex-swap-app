@@ -1,625 +1,441 @@
-// import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  SunIcon, 
+  MoonIcon,
+  Cog6ToothIcon,
+  AcademicCapIcon,
+  ChartBarIcon,
+  CodeBracketIcon
+} from '@heroicons/react/24/outline';
 
+// Components
+import SwapInterface from './components/SwapInterface';
+import SmartTokenSearch from './components/SmartTokenSearch';
+import InteractiveTutorial from './components/InteractiveTutorial';
+import ToastNotifications from './components/ToastNotifications';
+import PriceChart from './components/PriceChart';
+import DeveloperMode from './components/DeveloperMode';
+
+// Hooks and Store
+import { useWallet } from './hooks/useWallet';
+import { useSwap } from './hooks/useSwap';
+import { useAppStore } from './store/useAppStore';
+import { useToast } from './components/ToastNotifications';
+
+// Config
+import { NETWORKS } from './config/networks';
+
+// Styles
 import './App.css';
 
-import React, { useState, useEffect } from 'react';
-import Tabs from './components/Tabs';
-import { FiRefreshCw, FiZap, FiLink, FiSun, FiMoon, FiHelpCircle, FiInfo } from 'react-icons/fi';
-import './components/Tabs.css';
-import { ethers } from 'ethers';
-
-// --- CONFIG MULTI-CHAINS & TOKENS ---
-const NETWORKS = [
-  {
-    name: 'Ethereum Sepolia',
-    chainId: 11155111,
-    rpcUrl: 'https://sepolia.infura.io/v3/8b8b0a5e9d2e4d8c9a4f6e8b0a5e9d2e',
-    router: '0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45',
-    tokens: [
-      {
-        symbol: 'ETH',
-        address: '',
-        decimals: 18,
-        logo: require('./assets/ethereum-eth-logo.png'),
-        isNative: true,
-        name: 'Ethereum',
-      },
-      {
-        symbol: 'USDC',
-        address: '0x65aFADD39029741B3b8f0756952C74678c9cEC93',
-        decimals: 6,
-        logo: require('./assets/usd-coin-usdc-logo.png'),
-        isNative: false,
-        name: 'USD Coin',
-      },
-      {
-        symbol: 'DAI',
-        address: '0xBCb5bD3A5661bF0bA5c2c818fFfC3843cB8b8B8b', // fictif Sepolia
-        decimals: 18,
-        logo: require('./assets/dai-logo.png'),
-        isNative: false,
-        name: 'Dai Stablecoin',
-      },
-      {
-        symbol: 'WBTC',
-        address: '0xB2A7bA3aB5b2C8a8bA5b2C8a8bA5b2C8a8bA5b2C', // fictif Sepolia
-        decimals: 8,
-        logo: require('./assets/wbtc-logo.png'),
-        isNative: false,
-        name: 'Wrapped BTC',
-      },
-      {
-        symbol: 'USDT',
-        address: '0xD9b8b8B8b8B8b8B8b8B8b8B8b8B8b8B8b8B8b8B8', // fictif Sepolia
-        decimals: 6,
-        logo: require('./assets/usdt-logo.png'),
-        isNative: false,
-        name: 'Tether USD',
-      },
-    ],
-  },
-  {
-    name: 'Ethereum Mainnet',
-    chainId: 1,
-    rpcUrl: 'https://mainnet.infura.io/v3/8b8b0a5e9d2e4d8c9a4f6e8b0a5e9d2e',
-    router: '0xE592427A0AEce92De3Edee1F18E0157C05861564',
-    tokens: [
-      {
-        symbol: 'ETH',
-        address: '',
-        decimals: 18,
-        logo: require('./assets/ethereum-eth-logo.png'),
-        isNative: true,
-        name: 'Ethereum',
-      },
-      {
-        symbol: 'USDC',
-        address: '0xA0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
-        decimals: 6,
-        logo: require('./assets/usd-coin-usdc-logo.png'),
-        isNative: false,
-        name: 'USD Coin',
-      },
-      {
-        symbol: 'DAI',
-        address: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
-        decimals: 18,
-        logo: require('./assets/dai-logo.png'),
-        isNative: false,
-        name: 'Dai Stablecoin',
-      },
-      {
-        symbol: 'WBTC',
-        address: '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
-        decimals: 8,
-        logo: require('./assets/wbtc-logo.png'),
-        isNative: false,
-        name: 'Wrapped BTC',
-      },
-      {
-        symbol: 'USDT',
-        address: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
-        decimals: 6,
-        logo: require('./assets/usdt-logo.png'),
-        isNative: false,
-        name: 'Tether USD',
-      },
-    ],
-  },
-];
-// Par défaut Sepolia
 function App() {
-  const [showIntro, setShowIntro] = useState(true);
+  const [selectedFromToken, setSelectedFromToken] = useState('ETH');
+  const [selectedToToken, setSelectedToToken] = useState('USDC');
+  const [fromAmount, setFromAmount] = useState('');
+  const [showTokenSelector, setShowTokenSelector] = useState(false);
+  const [tokenSelectorType, setTokenSelectorType] = useState('from');
+  const [showSettings, setShowSettings] = useState(false);
+  const [showPriceChart, setShowPriceChart] = useState(false);
+
+  // Store
+  const { 
+    isDarkMode, 
+    toggleTheme, 
+    isDeveloperMode, 
+    toggleDeveloperMode,
+    hasCompletedOnboarding,
+    ui,
+    updateUI,
+    preferences,
+    updatePreferences
+  } = useAppStore();
+
+  // Hooks
+  const { 
+    account, 
+    isConnected, 
+    network, 
+    connectWallet, 
+    switchNetwork,
+    getTokenBalance 
+  } = useWallet();
+
+  const {
+    quote,
+    isLoading,
+    executeSwap,
+    priceImpact,
+    gasEstimate,
+    routeInfo
+  } = useSwap();
+
+  const toast = useToast();
+
+  // Appliquer le thème
   useEffect(() => {
-    if (showIntro) {
-      // Explication vocale (Web Speech API)
-      const synth = window.speechSynthesis;
-      const utter = new window.SpeechSynthesisUtterance(
-        "Bienvenue sur DEX Swap App. Cette application a ete realiser par Euloge Mabiala et vous permet d'échanger des cryptomonnaies instantanément, sans intermédiaire, en toute sécurité, sur plusieurs réseaux. Connectez votre portefeuille pour commencer."
-      );
-      utter.lang = 'fr-FR';
-      utter.rate = 1;
-      synth.cancel();
-      synth.speak(utter);
-      return () => {
-        synth.cancel();
-      };
-    }
-  }, [showIntro]);
-  const [networkIdx, setNetworkIdx] = useState(0);
-  const network = NETWORKS[networkIdx];
-  const TOKENS = network.tokens;
-  const UNISWAP_ROUTER = network.router;
-  const RPC_URL = network.rpcUrl;
-
-  const [swapHistory, setSwapHistory] = useState([]);
-  const [lightMode, setLightMode] = useState(() => {
-    try {
-      const saved = localStorage.getItem('lightMode');
-      return saved ? saved === 'true' : false;
-    } catch (e) {
-      return false;
-    }
-  });
-  useEffect(() => {
-    document.body.classList.toggle('light-mode', lightMode);
-    try { localStorage.setItem('lightMode', String(lightMode)); } catch (e) {}
-  }, [lightMode]);
-  const [toast, setToast] = useState({ show: false, message: '', status: '' });
-  // Fermer le toast après 3s
-  useEffect(() => {
-    if (toast.show) {
-      const timer = setTimeout(() => setToast({ ...toast, show: false }), 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [toast]);
-  const [account, setAccount] = useState(null);
-  const [error, setError] = useState('');
-
-  // Uniswap integration state
-  const [fromToken, setFromToken] = useState('ETH');
-  const [toToken, setToToken] = useState('USDC');
-  const [amount, setAmount] = useState('');
-  const [price, setPrice] = useState(null);
-  const [slippage, setSlippage] = useState(0.5); // %
-  const [minReceived, setMinReceived] = useState(null);
-  const [simulateMsg, setSimulateMsg] = useState('');
-  const [txStatus, setTxStatus] = useState('');
-  const [loading, setLoading] = useState(false);
-
-  // ETH and USDC token data for Sepolia testnet
-  // (déjà définis en haut)
-
-
-  const connectWallet = async () => {
-    if (window.ethereum) {
-      try {
-        const provider = new ethers.BrowserProvider(window.ethereum);
-        const accounts = await provider.send('eth_requestAccounts', []);
-        setAccount(accounts[0]);
-        setError('');
-      } catch (err) {
-        setError('Wallet connection refused.');
-      }
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
     } else {
-      setError('MetaMask is not installed.');
+      document.documentElement.classList.remove('dark');
+    }
+  }, [isDarkMode]);
+
+  // Vérifier les mises à jour
+  useEffect(() => {
+    // Simuler une vérification de mise à jour
+    const checkForUpdates = () => {
+      if (Math.random() < 0.1) { // 10% de chance
+        toast.appUpdate();
+      }
+    };
+
+    const timer = setTimeout(checkForUpdates, 5000);
+    return () => clearTimeout(timer);
+  }, [toast]);
+
+  const handleTokenSelect = (tokenSymbol) => {
+    if (tokenSelectorType === 'from') {
+      if (tokenSymbol === selectedToToken) {
+        // Swap automatique si même token
+        setSelectedToToken(selectedFromToken);
+      }
+      setSelectedFromToken(tokenSymbol);
+    } else {
+      if (tokenSymbol === selectedFromToken) {
+        // Swap automatique si même token
+        setSelectedFromToken(selectedToToken);
+      }
+      setSelectedToToken(tokenSymbol);
+    }
+    setShowTokenSelector(false);
+  };
+
+  const openTokenSelector = (type) => {
+    setTokenSelectorType(type);
+    setShowTokenSelector(true);
+  };
+
+  const handleSwap = async () => {
+    if (!isConnected) {
+      toast.warning('Wallet requis', 'Veuillez connecter votre wallet pour continuer');
+      return;
+    }
+
+    if (!fromAmount || parseFloat(fromAmount) <= 0) {
+      toast.error('Montant invalide', 'Veuillez saisir un montant valide');
+      return;
+    }
+
+    try {
+      const txHash = await executeSwap({
+        fromToken: selectedFromToken,
+        toToken: selectedToToken,
+        amount: fromAmount,
+        slippage: preferences.defaultSlippage
+      });
+
+      toast.transactionPending(txHash);
+      
+      // Simuler la confirmation (à remplacer par un vrai listener)
+      setTimeout(() => {
+        toast.transactionSuccess(txHash, {
+          description: `Échange de ${fromAmount} ${selectedFromToken} vers ${selectedToToken} réussi !`
+        });
+        
+        // Ajouter le token au wallet si activé
+        if (preferences.autoAddTokenToWallet) {
+          // Logique d'ajout du token à MetaMask
+          toast.tokenAdded(selectedToToken);
+        }
+      }, 3000);
+
+    } catch (error) {
+      toast.transactionError(error);
     }
   };
 
-  // Fetch price simulation when amount/from/to changes
-  React.useEffect(() => {
-    const fetchPrice = async () => {
-      setPrice(null);
-      if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) return;
-      try {
-        // Recherche des adresses des tokens sélectionnés
-        const tokenIn = TOKENS.find(t => t.symbol === fromToken);
-        const tokenOut = TOKENS.find(t => t.symbol === toToken);
-        if (!tokenIn || !tokenOut) return setPrice('--');
+  const swapTokens = () => {
+    const temp = selectedFromToken;
+    setSelectedFromToken(selectedToToken);
+    setSelectedToToken(temp);
+    setFromAmount(''); // Reset amount
+  };
 
-        // Ici, il faudrait idéalement rechercher dynamiquement le pool Uniswap v3 correspondant (tokenIn/tokenOut, fee tier 0.3%)
-        // Pour la démo, on affiche "Simulation non supportée" si ce n'est pas ETH/USDC sur Sepolia/Mainnet
-        // (À remplacer plus tard par une vraie recherche de pool via Uniswap SDK ou sous-graph)
-        if (
-          (tokenIn.symbol === 'ETH' && tokenOut.symbol === 'USDC') ||
-          (tokenIn.symbol === 'USDC' && tokenOut.symbol === 'ETH')
-        ) {
-          // Adresse du pool à utiliser selon le réseau
-          const poolAddress = network.name.includes('Sepolia')
-            ? '0x7c6B471A0b0eA2bD9c7eC7aB6E4a2a8E2A5e2A5e' // Remplacer par le vrai pool ETH/USDC sur Sepolia
-            : '0x8ad599c3a0ff1de082011efddc58f1908eb6e6d8'; // Pool ETH/USDC Mainnet
-          const provider = new ethers.JsonRpcProvider(RPC_URL);
-          const poolABI = [
-            'function slot0() external view returns (uint160 sqrtPriceX96,int24 tick,uint16 observationIndex,uint16 observationCardinality,uint16 observationCardinalityNext,uint8 feeProtocol,bool unlocked)',
-            'function liquidity() external view returns (uint128)'
-          ];
-          const poolContract = new ethers.Contract(poolAddress, poolABI, provider);
-          const slot0 = await poolContract.slot0();
-          const sqrtPriceX96 = slot0[0];
-          const priceETH_USDC = Number(sqrtPriceX96) / 2 ** 96;
-          const priceFinal = priceETH_USDC ** 2;
-          if (tokenIn.symbol === 'ETH') {
-            setPrice((Number(amount) * priceFinal).toFixed(2));
-          } else {
-            setPrice((Number(amount) / priceFinal).toFixed(6));
-          }
-        } else {
-          setPrice('--');
-        }
-      } catch (e) {
-        setPrice('--');
-      }
-    };
-    fetchPrice();
-    // eslint-disable-next-line
-  }, [amount, fromToken, toToken]);
-
-  const [tab, setTab] = useState('swap');
+  const currentNetwork = NETWORKS.find(n => n.chainId === network?.chainId);
+  const availableTokens = currentNetwork?.tokens || [];
 
   return (
-    <div className="App">
-      <div className="finance-bg" aria-hidden="true">
-        {Array.from({ length: 40 }).map((_, i) => (
-          <span
-            key={i}
-            className={
-              'finance-coin ' +
-              (i % 4 === 0 ? 'coin-sm' : i % 4 === 1 ? 'coin-md' : i % 4 === 2 ? 'coin-lg' : 'coin-xl') +
-              ' drift-' + ((i % 10) + 1) + (i % 5 === 0 ? ' coin-blur' : '')
-            }
-            data-symbol={i % 4 === 0 ? '$' : i % 4 === 1 ? 'Ξ' : i % 4 === 2 ? '₿' : '€'}
-          />
-        ))}
+    <div className={`min-h-screen transition-all duration-300 ${
+      isDarkMode 
+        ? 'bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900' 
+        : 'bg-gradient-to-br from-blue-50 via-white to-purple-50'
+    }`}>
+      {/* Background Effects */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary-500/20 rounded-full blur-3xl animate-pulse-slow" />
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-accent-500/20 rounded-full blur-3xl animate-pulse-slow delay-1000" />
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-primary-500/10 to-accent-500/10 rounded-full blur-3xl animate-float" />
       </div>
-      {showIntro && (
-        <div className="intro-overlay" onClick={() => setShowIntro(false)}>
-          <div className="intro-card">
-            <div className="intro-logo">
-              <span className="crypto-coin">
-                <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <defs>
-                    <radialGradient id="halo" cx="50%" cy="50%" r="50%">
-                      <stop offset="0%" stopColor="#61dafb" stopOpacity="0.6"/>
-                      <stop offset="100%" stopColor="#61dafb" stopOpacity="0"/>
-                    </radialGradient>
-                    <linearGradient id="coin" x1="0" y1="0" x2="1" y2="1">
-                      <stop offset="0%" stopColor="#ffe066"/>
-                      <stop offset="100%" stopColor="#61dafb"/>
-                    </linearGradient>
-                  </defs>
-                  <circle cx="32" cy="32" r="28" fill="url(#coin)" stroke="#fff" strokeWidth="2" filter="url(#glow)"/>
-                  <circle cx="32" cy="32" r="32" fill="url(#halo)"/>
-                  <text x="32" y="41" textAnchor="middle" fontSize="28" fontWeight="bold" fill="#232526" filter="url(#shadow)">Ξ</text>
-                </svg>
-              </span>
+
+      {/* Header */}
+      <header className="relative z-10 p-4">
+        <div className="max-w-6xl mx-auto flex items-center justify-between">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="flex items-center space-x-3"
+          >
+            <div className="w-10 h-10 bg-gradient-to-r from-primary-500 to-accent-500 rounded-xl flex items-center justify-center">
+              <span className="text-white font-bold text-lg">D</span>
             </div>
-            <h2 className="intro-title">Bienvenue sur <span className="intro-title-accent">DEX Swap App</span></h2>
-            <p className="intro-desc">
-              Échangez vos cryptomonnaies instantanément, sans intermédiaire, sur plusieurs réseaux Ethereum.<br/>
-              <b>Sécurité, rapidité, liberté.</b><br/>
-              Cliquez sur "Commencer".
-            </p>
-            <button className="intro-btn" onClick={e => {e.stopPropagation(); setShowIntro(false);}}>Commencer</button>
+            <div>
+              <h1 className="text-xl font-bold gradient-text">DEX Swap</h1>
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                L'avenir du trading décentralisé
+              </p>
+            </div>
+          </motion.div>
+
+          <div className="flex items-center space-x-2">
+            {/* Theme Toggle */}
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={toggleTheme}
+              className="p-2 rounded-xl bg-white/10 dark:bg-gray-800/50 backdrop-blur-sm border border-white/20 dark:border-gray-700 hover:bg-white/20 dark:hover:bg-gray-700/50 transition-all"
+            >
+              {isDarkMode ? (
+                <SunIcon className="w-5 h-5 text-yellow-500" />
+              ) : (
+                <MoonIcon className="w-5 h-5 text-gray-600" />
+              )}
+            </motion.button>
+
+            {/* Price Chart Toggle */}
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setShowPriceChart(!showPriceChart)}
+              className={`p-2 rounded-xl backdrop-blur-sm border transition-all ${
+                showPriceChart
+                  ? 'bg-primary-500/20 border-primary-500/30 text-primary-600 dark:text-primary-400'
+                  : 'bg-white/10 dark:bg-gray-800/50 border-white/20 dark:border-gray-700 hover:bg-white/20 dark:hover:bg-gray-700/50'
+              }`}
+            >
+              <ChartBarIcon className="w-5 h-5" />
+            </motion.button>
+
+            {/* Developer Mode Toggle */}
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={toggleDeveloperMode}
+              className={`p-2 rounded-xl backdrop-blur-sm border transition-all ${
+                isDeveloperMode
+                  ? 'bg-green-500/20 border-green-500/30 text-green-600 dark:text-green-400'
+                  : 'bg-white/10 dark:bg-gray-800/50 border-white/20 dark:border-gray-700 hover:bg-white/20 dark:hover:bg-gray-700/50'
+              }`}
+            >
+              <CodeBracketIcon className="w-5 h-5" />
+            </motion.button>
+
+            {/* Tutorial */}
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => updateUI({ showTutorial: true })}
+              className="p-2 rounded-xl bg-white/10 dark:bg-gray-800/50 backdrop-blur-sm border border-white/20 dark:border-gray-700 hover:bg-white/20 dark:hover:bg-gray-700/50 transition-all"
+            >
+              <AcademicCapIcon className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+            </motion.button>
+
+            {/* Settings */}
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setShowSettings(!showSettings)}
+              className="settings-btn p-2 rounded-xl bg-white/10 dark:bg-gray-800/50 backdrop-blur-sm border border-white/20 dark:border-gray-700 hover:bg-white/20 dark:hover:bg-gray-700/50 transition-all"
+            >
+              <Cog6ToothIcon className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+            </motion.button>
           </div>
-        </div>
-      )}
-      <header className="App-header">
-        <button
-          className={("toggle-mode-btn" + (lightMode ? " active" : "")) + " toggle-mode-fixed"}
-          aria-label={lightMode ? "Basculer en mode sombre" : "Basculer en mode clair"}
-          aria-pressed={lightMode}
-          onClick={() => setLightMode(m => !m)}
-        >
-          {lightMode ? <FiSun aria-hidden /> : <FiMoon aria-hidden />}
-        </button>
-         <h1 className="swap-title">DEX Swap App <span className="testnet-badge">{network.name}</span></h1>
-         <div className="swap-card">
-           {/* Sélection du réseau */}
-           <div className="swap-field">
-  <select
-    id="network-select"
-    className="swap-select"
-    value={networkIdx}
-    onChange={e => setNetworkIdx(Number(e.target.value))}
-    aria-label="Sélection du réseau"
-    tabIndex={0}
-    required
-    
-  >
-    {NETWORKS.map((net, idx) => (
-      <option key={net.chainId} value={idx}>{net.name}</option>
-    ))}
-  </select>
-  <label className="swap-label" htmlFor="network-select">Réseau</label>
-</div>
-           {account ? (
-             <>
-               <div className="wallet-info">
-                 <span className="wallet-label">Wallet connecté :</span>
-                 <span className="wallet-address">{account}</span>
-               </div>
-               <form className="swap-form" onSubmit={e => e.preventDefault()} aria-label="Formulaire de swap" tabIndex={0}>
-                 <div className="swap-field">
-  <div className="swap-token-select">
-    {TOKENS.find(t => t.symbol === fromToken) && (
-      <img src={TOKENS.find(t => t.symbol === fromToken).logo} alt={fromToken} className="token-icon" />
-    )}
-    <select
-      id="from-token-select"
-      className="swap-select"
-      value={fromToken}
-      onChange={e => {
-        setFromToken(e.target.value);
-        if (e.target.value === toToken) {
-          const firstOther = TOKENS.find(t => t.symbol !== e.target.value);
-          setToToken(firstOther.symbol);
-        }
-      }}
-      aria-label="Sélection du token source"
-      tabIndex={0}
-      required
-      
-    >
-      {TOKENS.map(t => (
-        <option key={t.symbol} value={t.symbol}>{t.symbol}</option>
-      ))}
-    </select>
-    <label className="swap-label" htmlFor="from-token-select">From</label>
-  </div>
-</div>
-                 <div className="swap-field">
-  <div className="swap-token-select">
-    {TOKENS.find(t => t.symbol === toToken) && (
-      <img src={TOKENS.find(t => t.symbol === toToken).logo} alt={toToken} className="token-icon" />
-    )}
-    <select
-      id="to-token-select"
-      className="swap-select"
-      value={toToken}
-      onChange={e => {
-        setToToken(e.target.value);
-        if (e.target.value === fromToken) {
-          const firstOther = TOKENS.find(t => t.symbol !== e.target.value);
-          setFromToken(firstOther.symbol);
-        }
-      }}
-      aria-label="Sélection du token destination"
-      tabIndex={0}
-      required
-      
-    >
-      {TOKENS.filter(t => t.symbol !== fromToken).map(t => (
-        <option key={t.symbol} value={t.symbol}>{t.symbol}</option>
-      ))}
-    </select>
-    <label className="swap-label" htmlFor="to-token-select">To</label>
-  </div>
-</div>
-                <div className="swap-field">
-  <input
-    id="amount-input"
-    type="number"
-    min="0"
-    step="any"
-    placeholder=" "
-    value={amount}
-    onChange={e => setAmount(e.target.value)}
-    className="swap-input"
-    aria-label="Montant à échanger"
-    tabIndex={0}
-    required
-    
-  />
-  <label className="swap-label" htmlFor="amount-input">Montant</label>
-</div>
-                <div className="swap-field">
-  <input
-    id="slippage-input"
-    type="number"
-    min="0"
-    max="5"
-    step="0.1"
-    placeholder=" "
-    value={slippage}
-    onChange={e => setSlippage(e.target.value)}
-    className="swap-input"
-    aria-label="Slippage toléré (%)"
-    tabIndex={0}
-    required
-    
-  />
-  <label className="swap-label" htmlFor="slippage-input">Slippage (%)</label>
-</div>
-                <div className="swap-summary">
-                  <div className="swap-summary-row">Prix estimé : <span className="swap-summary-value">{price !== null ? price : <span className="placeholder-dash">--</span>} {toToken}</span></div>
-                  <div className="swap-summary-row">Frais Uniswap : <span className="swap-summary-value">0.3%</span></div>
-                  {simulateMsg && (
-                    <div className="swap-summary-row swap-simulate-msg">{simulateMsg}</div>
-                  )}
-                  {/* Résumé transaction avant swap */}
-                  {simulateMsg && amount && (
-                    <div className="tx-summary-card">
-                      <div className="tx-summary-title">Résumé de la transaction</div>
-                      <div className="tx-summary-line"><span>De :</span> <span>{amount} <img src={TOKENS.find(t => t.symbol === fromToken)?.logo} alt={fromToken} className="token-icon" /> {fromToken}</span></div>
-                      <div className="tx-summary-line"><span>Vers :</span> <span><img src={TOKENS.find(t => t.symbol === toToken)?.logo} alt={toToken} className="token-icon" /> {toToken}</span></div>
-                      <div className="tx-summary-line"><span>Prix estimé :</span> <span>{price} {toToken}</span></div>
-                      <div className="tx-summary-line"><span>Slippage toléré :</span> <span>{slippage}%</span></div>
-                      <div className="tx-summary-line"><span>Montant minimum reçu :</span> <span>{minReceived} {toToken}</span></div>
-                    </div>
-                  )}
-                  {txStatus && (
-                    <div className={txStatus.startsWith('✅') ? 'swap-status-success' : 'swap-status-error'}>{txStatus}</div>
-                  )}
-                </div>
-                <div className="swap-actions">
-                  <button
-                    className="swap-btn simulate-btn"
-                    type="button"
-                    onClick={async () => {
-                      setLoading(true);
-                      setSimulateMsg('');
-                      try {
-                        if (price && !isNaN(Number(price))) {
-                          const slippageFactor = 1 - Number(slippage) / 100;
-                          const min = (Number(price) * slippageFactor).toFixed(6);
-                          setMinReceived(min);
-                          setSimulateMsg(`Vous recevrez au minimum : ${min} ${toToken}`);
-                        } else {
-                          setSimulateMsg('Simulation impossible.');
-                        }
-                      } finally {
-                        setLoading(false);
-                      }
-                    }}
-                    disabled={loading || !amount || !price || price === '--' || isNaN(Number(price))}
-                  >
-                    {loading ? <span className="loader"></span> : (<><FiZap className="btn-ic" aria-hidden /> Simuler swap</>)}
-                  </button>
-                  <button
-                    className="swap-btn swap-btn-main"
-                    type="button"
-                    disabled={loading ||
-                      !account ||
-                      !amount ||
-                      !price ||
-                      price === '--' ||
-                      isNaN(Number(price))}
-                    onClick={async () => {
-                      setLoading(true);
-                      setTxStatus('');
-                      try {
-                        if (!window.ethereum) throw new Error('MetaMask requis');
-                        const provider = new ethers.BrowserProvider(window.ethereum);
-                        const signer = await provider.getSigner();
-                        const tokenIn = TOKENS.find(t => t.symbol === fromToken);
-                        const tokenOut = TOKENS.find(t => t.symbol === toToken);
-                        if (!tokenIn || !tokenOut) throw new Error('Token sélectionné introuvable');
-                        const router = UNISWAP_ROUTER;
-                        const deadline = Math.floor(Date.now() / 1000) + 60 * 10;
-                        let amountIn, minOut;
-                        if (tokenIn.isNative) {
-                          amountIn = ethers.parseUnits(amount, tokenIn.decimals);
-                        } else {
-                          amountIn = ethers.parseUnits(amount, tokenIn.decimals);
-                        }
-                        minOut = ethers.parseUnits(
-                          (Number(price) * (1 - Number(slippage) / 100)).toFixed(tokenOut.decimals),
-                          tokenOut.decimals
-                        );
-                        // Pour la démo : swap exactInputSingle (Uniswap v3)
-                        // Il faudrait gérer les approvals ERC20 si tokenIn n'est pas natif
-                        const iface = new ethers.Interface([
-                          'function exactInputSingle((address,address,uint24,address,uint256,uint256,uint160)) payable returns (uint256)'
-                        ]);
-                        const params = {
-                          tokenIn: tokenIn.isNative ? '0xC02aaa39b223FE8D0A0e5C4F27eAD9083C756Cc2' : tokenIn.address, // WETH9 si natif
-                          tokenOut: tokenOut.address,
-                          fee: 3000,
-                          recipient: account,
-                          deadline,
-                          amountIn,
-                          amountOutMinimum: minOut,
-                          sqrtPriceLimitX96: 0n
-                        };
-                        const tx = await signer.sendTransaction({
-                          to: router,
-                          value: tokenIn.isNative ? amountIn : 0n,
-                          data: iface.encodeFunctionData('exactInputSingle', [params])
-                        });
-                        setTxStatus('Transaction envoyée. Attente de confirmation...');
-                        await tx.wait();
-                        setTxStatus('✅ Swap effectué avec succès !');
-                        setToast({ show: true, message: 'Swap effectué avec succès !', status: 'success' });
-                        setSwapHistory(prev => [
-                          {
-                            date: new Date().toLocaleString(),
-                            amount,
-                            fromToken,
-                            toToken,
-                            minReceived,
-                          },
-                          ...prev
-                        ]);
-                      } catch (e) {
-                        setTxStatus('❌ Erreur : ' + (e.reason || e.message || e.toString()));
-                        setToast({ show: true, message: 'Erreur : ' + (e.reason || e.message || e.toString()), status: 'error' });
-                      } finally {
-                        setLoading(false);
-                      }
-                    }}
-                  >
-                    {loading ? <span className="loader"></span> : (<><FiRefreshCw className="btn-ic" aria-hidden /> Swap ETH → USDC</>)}
-                  </button>
-                </div>
-              </form>
-            </>
-          ) : (
-            <button className="swap-btn connect-btn" onClick={connectWallet}><FiLink className="btn-ic" aria-hidden /> Connect MetaMask</button>
-          )}
-          {error && <div className="swap-status-error">{error}</div>}
         </div>
       </header>
-      {/* Onglets de navigation */}
-      {!showIntro && (
-        <Tabs
-          tabs={[
-            { key: 'swap', label: 'Swap', icon: <FiRefreshCw aria-hidden /> },
-            { key: 'help', label: 'Aide', icon: <FiHelpCircle aria-hidden /> },
-            { key: 'info', label: 'Infos', icon: <FiInfo aria-hidden /> },
-          ]}
-          current={tab}
-          onChange={setTab}
-        />
-      )}
 
-      {/* Contenu selon l’onglet */}
-      {tab === 'swap' && (
-        <>
-          <header className="App-header">
-            {/* ... swap UI inchangée ... */}
-            {/* Historique des swaps */}
-            {swapHistory.length > 0 && (
-              <div className="swap-history-card">
-                <div className="swap-history-title">Historique des swaps</div>
-                {swapHistory.map((h, i) => (
-                  <div key={i} className="swap-history-item">
-                    <span>{h.amount} <img src={TOKENS.find(t => t.symbol === h.fromToken)?.logo} alt={h.fromToken} className="token-icon" /> {h.fromToken} → <img src={TOKENS.find(t => t.symbol === h.toToken)?.logo} alt={h.toToken} className="token-icon" /> {h.toToken}</span>
-                    <span className="swap-history-time">{h.date}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </header>
-        </>
-      )}
-      {tab === 'help' && (
-        <div className="swap-card content-card-narrow">
-          <h2 className="help-title">Aide & FAQ</h2>
-          <ul className="section-list">
-            <li><b>Comment connecter mon wallet&nbsp;?</b><br/>Clique sur “Connect MetaMask” sur l’onglet Swap. Installe MetaMask si besoin.</li>
-            <li><b>Comment choisir le réseau&nbsp;?</b><br/>Utilise le menu déroulant en haut de l’onglet Swap pour passer de Sepolia à Mainnet.</li>
-            <li><b>Comment fonctionne le swap&nbsp;?</b><br/>Sélectionne les tokens, entre le montant, simule puis valide. La transaction se signe dans le wallet.</li>
-            <li><b>Pourquoi certains swaps ne fonctionnent pas&nbsp;?</b><br/>La démo supporte surtout ETH⇄USDC sur Sepolia/Mainnet. Les autres couples sont à venir.</li>
-            <li><b>Où voir l’historique&nbsp;?</b><br/>L’historique s’affiche sous le formulaire Swap après chaque échange réussi.</li>
-          </ul>
-          <div className="support-note">Besoin d’aide&nbsp;? Contacte le développeur sur GitHub&nbsp;: <a href="https://github.com/eulogep" target="_blank" rel="noopener noreferrer" className="link-accent">eulogep</a></div>
-        </div>
-      )}
-      {tab === 'info' && (
-        <div className="swap-card content-card-narrow">
-          <h2 className="info-title">À propos</h2>
-          <div className="creator-section" aria-label="Créateur">
-            <img
-              className="creator-avatar"
-              src="https://cdn.builder.io/api/v1/image/assets%2Fac048846706146db8083881472b32a15%2Fbd6916d37c114636bffd5dd85861d8dc?format=webp&width=800"
-              alt="Euloge Mabiala"
-              loading="lazy"
-              decoding="async"
-            />
-            <div className="creator-meta">
-              <div className="creator-name">Euloge Mabiala</div>
-              <div className="creator-role">Créateur & Développeur</div>
+      {/* Main Content */}
+      <main className="relative z-10 px-4 pb-8">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Price Chart */}
+            <AnimatePresence>
+              {showPriceChart && (
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  className="lg:col-span-1"
+                >
+                  <PriceChart 
+                    tokenSymbol={selectedFromToken}
+                    className="h-full"
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Swap Interface */}
+            <div className={`${showPriceChart ? 'lg:col-span-2' : 'lg:col-span-3'} max-w-2xl mx-auto`}>
+              <SwapInterface
+                selectedFromToken={selectedFromToken}
+                selectedToToken={selectedToToken}
+                fromAmount={fromAmount}
+                setFromAmount={setFromAmount}
+                onTokenSelect={openTokenSelector}
+                onSwapTokens={swapTokens}
+                onSwap={handleSwap}
+                account={account}
+                isConnected={isConnected}
+                connectWallet={connectWallet}
+                network={network}
+                switchNetwork={switchNetwork}
+                quote={quote}
+                isLoading={isLoading}
+                priceImpact={priceImpact}
+                gasEstimate={gasEstimate}
+                availableTokens={availableTokens}
+                getTokenBalance={getTokenBalance}
+              />
+
+              {/* Developer Mode */}
+              <DeveloperMode
+                transactionData={{
+                  fromToken: selectedFromToken,
+                  toToken: selectedToToken,
+                  amountIn: fromAmount,
+                  amountOut: quote?.amountOut,
+                  status: 'ready'
+                }}
+                networkInfo={{
+                  name: network?.name,
+                  chainId: network?.chainId,
+                  blockNumber: network?.blockNumber,
+                  rpcUrl: network?.rpcUrl
+                }}
+                gasEstimate={gasEstimate}
+                priceImpact={priceImpact}
+                routeInfo={routeInfo}
+              />
             </div>
           </div>
-          <ul className="section-list">
-            <li><b>DEX Swap App</b> — v1.0</li>
-            <li>Frontend&nbsp;: React 18, ethers.js, Uniswap SDK</li>
-            <li>Déploiement&nbsp;: <a href="https://eulogep.github.io/dex-swap-app/" target="_blank" rel="noopener noreferrer" className="link-accent">GitHub Pages</a></li>
-            <li>Code source&nbsp;: <a href="https://github.com/eulogep/dex-swap-app" target="_blank" rel="noopener noreferrer" className="link-accent">github.com/eulogep/dex-swap-app</a></li>
-          </ul>
-          <div className="support-note">Open source & sans collecte de données.</div>
         </div>
-      )}
+      </main>
 
-      {/* Toast notification */}
-      {toast.show && (
-        <div className={`toast ${toast.status}`} role="alert" aria-live="assertive">
-          {toast.message}
-        </div>
-      )}
-      <footer className="app-footer">
-        <span>Réalisé par <b>Euloge Mabiala</b></span>
-      </footer>
+      {/* Token Selector Modal */}
+      <SmartTokenSearch
+        tokens={availableTokens}
+        onTokenSelect={handleTokenSelect}
+        excludeToken={tokenSelectorType === 'from' ? selectedToToken : selectedFromToken}
+        isOpen={showTokenSelector}
+        onClose={() => setShowTokenSelector(false)}
+        getTokenBalance={getTokenBalance}
+        userAddress={account}
+      />
+
+      {/* Interactive Tutorial */}
+      <InteractiveTutorial />
+
+      {/* Toast Notifications */}
+      <ToastNotifications />
+
+      {/* Settings Modal */}
+      <AnimatePresence>
+        {showSettings && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+            onClick={() => setShowSettings(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="w-full max-w-md mx-4 bg-white dark:bg-gray-900 rounded-2xl shadow-2xl overflow-hidden"
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="p-6">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                  Paramètres
+                </h3>
+                
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Slippage par défaut (%)
+                    </label>
+                    <input
+                      type="number"
+                      min="0.1"
+                      max="50"
+                      step="0.1"
+                      value={preferences.defaultSlippage}
+                      onChange={(e) => updatePreferences({ defaultSlippage: parseFloat(e.target.value) })}
+                      className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                      Ajouter automatiquement les tokens
+                    </span>
+                    <button
+                      onClick={() => updatePreferences({ autoAddTokenToWallet: !preferences.autoAddTokenToWallet })}
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                        preferences.autoAddTokenToWallet ? 'bg-primary-500' : 'bg-gray-200 dark:bg-gray-700'
+                      }`}
+                    >
+                      <span
+                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                          preferences.autoAddTokenToWallet ? 'translate-x-6' : 'translate-x-1'
+                        }`}
+                      />
+                    </button>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                      Notifications
+                    </span>
+                    <button
+                      onClick={() => updatePreferences({ enableNotifications: !preferences.enableNotifications })}
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                        preferences.enableNotifications ? 'bg-primary-500' : 'bg-gray-200 dark:bg-gray-700'
+                      }`}
+                    >
+                      <span
+                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                          preferences.enableNotifications ? 'translate-x-6' : 'translate-x-1'
+                        }`}
+                      />
+                    </button>
+                  </div>
+                </div>
+
+                <div className="mt-6 flex justify-end">
+                  <button
+                    onClick={() => setShowSettings(false)}
+                    className="px-4 py-2 bg-primary-500 hover:bg-primary-600 text-white rounded-lg font-medium transition-colors"
+                  >
+                    Fermer
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
