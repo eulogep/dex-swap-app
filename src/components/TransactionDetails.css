@@ -1,0 +1,276 @@
+/* Styles pour les détails de transaction */
+
+.transaction-details {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(97, 218, 251, 0.3);
+  border-radius: 16px;
+  padding: 20px;
+  margin-top: 16px;
+  backdrop-filter: blur(10px);
+}
+
+.details-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(97, 218, 251, 0.2);
+}
+
+.details-icon {
+  color: #61dafb;
+  font-size: 1.1rem;
+}
+
+.details-header h3 {
+  margin: 0;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.details-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+}
+
+.detail-label {
+  color: #94a3b8;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.detail-value {
+  color: #fff;
+  font-weight: 500;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.token-icon-small {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.info-tooltip {
+  background: none;
+  border: none;
+  color: #64748b;
+  cursor: help;
+  padding: 2px;
+  border-radius: 4px;
+  transition: color 0.2s ease;
+}
+
+.info-tooltip:hover {
+  color: #61dafb;
+}
+
+.slippage-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.slippage-input {
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(97, 218, 251, 0.3);
+  border-radius: 6px;
+  padding: 4px 8px;
+  color: #fff;
+  font-size: 0.85rem;
+  width: 60px;
+  text-align: center;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.slippage-input:focus {
+  border-color: #61dafb;
+}
+
+.price-impact {
+  font-weight: 600;
+}
+
+.network-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.testnet-badge {
+  background: rgba(245, 158, 11, 0.2);
+  color: #f59e0b;
+  font-size: 0.7rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.warning-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 12px;
+  padding: 16px;
+  margin-top: 16px;
+}
+
+.warning-icon {
+  color: #ef4444;
+  font-size: 1.1rem;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.warning-box strong {
+  color: #ef4444;
+  font-size: 0.9rem;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.warning-box p {
+  color: #fca5a5;
+  font-size: 0.85rem;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.explorer-link {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(97, 218, 251, 0.2);
+  text-align: center;
+}
+
+.link-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #61dafb;
+  text-decoration: none;
+  font-size: 0.85rem;
+  padding: 6px 12px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  border: 1px solid rgba(97, 218, 251, 0.3);
+}
+
+.link-button:hover {
+  background: rgba(97, 218, 251, 0.1);
+  border-color: #61dafb;
+  text-decoration: none;
+}
+
+/* Mode clair */
+.light-mode .transaction-details {
+  background: rgba(248, 250, 252, 0.8);
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+.light-mode .details-header {
+  border-bottom-color: rgba(59, 130, 246, 0.2);
+}
+
+.light-mode .details-icon {
+  color: #3b82f6;
+}
+
+.light-mode .details-header h3 {
+  color: #1e293b;
+}
+
+.light-mode .detail-label {
+  color: #64748b;
+}
+
+.light-mode .detail-value {
+  color: #1e293b;
+}
+
+.light-mode .info-tooltip {
+  color: #94a3b8;
+}
+
+.light-mode .info-tooltip:hover {
+  color: #3b82f6;
+}
+
+.light-mode .slippage-input {
+  background: rgba(255, 255, 255, 0.8);
+  border-color: rgba(59, 130, 246, 0.3);
+  color: #1e293b;
+}
+
+.light-mode .slippage-input:focus {
+  border-color: #3b82f6;
+}
+
+.light-mode .explorer-link {
+  border-top-color: rgba(59, 130, 246, 0.2);
+}
+
+.light-mode .link-button {
+  color: #3b82f6;
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+.light-mode .link-button:hover {
+  background: rgba(59, 130, 246, 0.1);
+  border-color: #3b82f6;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .transaction-details {
+    padding: 16px;
+  }
+  
+  .detail-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    padding: 6px 0;
+  }
+  
+  .detail-value {
+    align-self: flex-end;
+  }
+  
+  .slippage-controls {
+    align-self: flex-end;
+  }
+  
+  .warning-box {
+    padding: 12px;
+  }
+  
+  .warning-box strong {
+    font-size: 0.85rem;
+  }
+  
+  .warning-box p {
+    font-size: 0.8rem;
+  }
+}
