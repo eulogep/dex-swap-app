@@ -23,7 +23,7 @@
     "react-intersection-observer": "^9.16.0",
     "react-query": "^3.39.3",
     "react-scripts": "5.0.1",
-    "tailwindcss": "^4.1.13",
+    "tailwindcss": "^4.1.14",
     "web-vitals": "^5.0.3",
     "zustand": "^5.0.8"
   },
