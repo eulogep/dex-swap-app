@@ -12,7 +12,7 @@
     "autoprefixer": "^10.4.21",
     "cra-template-pwa": "2.0.0",
     "ethers": "^6.15.0",
-    "framer-motion": "^12.23.22",
+    "framer-motion": "^12.23.23",
     "gh-pages": "^6.3.0",
     "lucide-react": "^0.544.0",
     "postcss": "^8.5.6",
